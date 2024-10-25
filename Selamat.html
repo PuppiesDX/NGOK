@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGOK</title>
+    <style>
+        /* Background Langit Malam */
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #00071c;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        /* Container dan Teks */
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        h1 {
+            font-size: 4em;
+            color: #ffec61;
+            animation: sparkleText 3s linear infinite;
+            position: relative;
+            overflow: hidden;
+        }
+        p {
+            font-size: 1.5em;
+            color: #ffffff;
+        }
+        .highlight {
+            color: #ffec61;
+            font-weight: bold;
+        }
+
+        /* Animasi Kilau */
+        @keyframes sparkleText {
+            0% {
+                background-position: -100%;
+            }
+            100% {
+                background-position: 200%;
+            }
+        }
+
+        /* Efek Kilau */
+        h1 {
+            background-image: linear-gradient(120deg, #ffec61, #ffffff, #ffec61);
+            background-size: 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Bintang */
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background-color: white;
+            opacity: 0.8;
+            animation: twinkle 3s infinite alternate;
+        }
+
+        /* Efek Twinkle untuk Bintang */
+        @keyframes twinkle {
+            0% { opacity: 0.6; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* Kembang Api */
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        /* Media Queries untuk Responsif */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.5em; /* Ukuran lebih kecil untuk perangkat kecil */
+            }
+            p {
+                font-size: 1.2em; /* Ukuran lebih kecil untuk paragraf */
+            }
+        }
+
+        @media (min-width: 601px) and (max-width: 1024px) {
+            h1 {
+                font-size: 3em; /* Ukuran sedang untuk tablet */
+            }
+            p {
+                font-size: 1.5em; /* Ukuran sedang untuk paragraf */
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div class="container">
+        <h1>SEMANGAT KADER<br>&<br>SELAMAT DIANGKAT NANTI MALEM!</h1>
+    </div>
+
+    <script>
+        // Membuat Bintang
+        function createStars() {
+            const numStars = 100;
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement("div");
+                star.classList.add("star");
+
+                // Ukuran dan posisi acak
+                const size = Math.random() * 3 + 1 + "px";
+                const x = Math.random() * window.innerWidth + "px";
+                const y = Math.random() * window.innerHeight + "px";
+
+                star.style.width = size;
+                star.style.height = size;
+                star.style.left = x;
+                star.style.top = y;
+
+                // Kecepatan acak untuk efek twinkle
+                const duration = Math.random() * 2 + 1 + "s";
+                star.style.animationDuration = duration;
+
+                document.body.appendChild(star);
+            }
+        }
+
+        // Panggil fungsi createStars saat halaman dimuat
+        createStars();
+
+        // Efek Kembang Api
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.angle = Math.random() * 2 * Math.PI;
+                this.speed = Math.random() * 3 + 2;
+                this.radius = Math.random() * 2 + 1;
+                this.alpha = 1;
+            }
+            update() {
+                this.x += this.speed * Math.cos(this.angle);
+                this.y += this.speed * Math.sin(this.angle);
+                this.alpha -= 0.02;
+            }
+            draw() {
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function createFirework(x, y) {
+            const colors = ['#ffec61', '#ff5964', '#35a7ff', '#6bffb8'];
+            const numParticles = 30;
+            for (let i = 0; i < numParticles; i++) {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles = particles.filter(p => p.alpha > 0);
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            if (Math.random() < 0.05) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height / 2;
+                createFirework(x, y);
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Menyesuaikan ukuran canvas dan bintang saat layar diubah
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            document.querySelectorAll('.star').forEach(star => star.remove());
+            createStars();
+        });
+    </script>
+</body>
+</html>
